@@ -17,11 +17,6 @@
     </div>
   </div>
 
-  <!-- Test dark mode with inline styles -->
-  <div id="dark-mode-test" class="mb-4 p-4 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700" style="transition: all 0.3s ease;">
-    <p class="text-gray-800 dark:text-gray-200">Dark mode test: This should change colors when toggled</p>
-  </div>
-
   <% if @albums.any? %>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       <% @albums.each do |album| %>

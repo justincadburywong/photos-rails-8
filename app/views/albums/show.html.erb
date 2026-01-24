@@ -50,7 +50,7 @@
       </div>
     </div>
 
-    <!-- Initialize OwlCarousel JavaScript -->
+    <!-- Initialize Optimized OwlCarousel JavaScript -->
     <script>
       document.addEventListener('DOMContentLoaded', function() {
         const modal = document.getElementById('owl-carousel-modal');
@@ -58,34 +58,56 @@
         const closeBtn = document.getElementById('close-carousel');
         let owlCarousel = null;
         let isOpen = false;
-
-        // Get all photos data
+        let currentPhotoIndex = 0;
+        
+        // Preload photos data once
         const photos = [
           <% @photos.each do |photo| %>
             <% next unless photo && photo.image.attached? %>
             {
               id: <%= photo.id %>,
-              url: "<%= url_for(photo.image) %>"
+              thumbnailUrl: "<%= photo.thumbnail_url %>",
+              mediumUrl: "<%= photo.medium_url %>",
+              largeUrl: "<%= photo.large_url %>"
             },
           <% end %>
         ];
 
         function openCarousel(clickedPhotoId) {
-          if (isOpen) return; // Prevent multiple opens
+          console.log('Opening carousel for photo:', clickedPhotoId);
+          
+          // Find the photo index
+          currentPhotoIndex = photos.findIndex(p => p.id == clickedPhotoId);
+          if (currentPhotoIndex === -1) {
+            console.error('Photo not found:', clickedPhotoId);
+            return;
+          }
+          
+          // If carousel is already open, just navigate
+          if (isOpen && owlCarousel) {
+            $(carousel).trigger('to.owl.carousel', [currentPhotoIndex, 300, true]);
+            return;
+          }
+          
           isOpen = true;
-
-          // Build carousel items
-          const carouselItems = photos.map(photo => `
-            <div class="item">
+          
+          // Build carousel items with lazy loading
+          const carouselItems = photos.map((photo, index) => `
+            <div class="item" data-photo-id="${photo.id}">
               <div class="flex items-center justify-center min-h-screen bg-black">
-                <img src="${photo.url}" alt="Photo" class="max-w-full max-h-full object-contain">
+                <img 
+                  src="${index === currentPhotoIndex ? photo.largeUrl : photo.mediumUrl}" 
+                  data-src="${photo.largeUrl}"
+                  alt="Photo" 
+                  class="max-w-full max-h-full object-contain owl-lazy"
+                  loading="${index === currentPhotoIndex ? 'eager' : 'lazy'}">
               </div>
             </div>
           `).join('');
 
           carousel.innerHTML = carouselItems;
           
-          // Initialize OwlCarousel
+          // Initialize OwlCarousel with optimized settings
           owlCarousel = $(carousel).owlCarousel({
             items: 1,
             loop: false,
@@ -93,30 +115,41 @@
             nav: true,
             dots: true,
             autoplay: false,
-            smartSpeed: 300,
+            smartSpeed: 200,
             fluidSpeed: true,
+            lazyLoad: true,
+            lazyContent: true,
             navText: [
               '<span class="text-3xl text-white">&lsaquo;</span>',
               '<span class="text-3xl text-white">&rsaquo;</span>'
-            ]
+            ],
+            onInitialized: function() {
+              console.log('Carousel initialized');
+            },
+            onChanged: function(event) {
+              currentPhotoIndex = event.item.index;
+              console.log('Changed to photo index:', currentPhotoIndex);
+            }
           });
 
           // Navigate to clicked photo
-          const photoIndex = photos.findIndex(p => p.id == clickedPhotoId);
-          if (photoIndex !== -1) {
-            $(carousel).trigger('to.owl.carousel', [photoIndex, 0, true]);
-          }
+          $(carousel).trigger('to.owl.carousel', [currentPhotoIndex, 0, true]);
 
           // Show modal
           modal.style.display = 'block';
           modal.classList.remove('hidden');
           document.body.style.overflow = 'hidden';
+          
+          console.log('Carousel opened successfully');
         }
 
         function closeCarousel() {
+          console.log('Closing carousel');
           if (!isOpen) return;
+          
           isOpen = false;
 
+          // Hide modal first
           modal.style.display = 'none';
           modal.classList.add('hidden');
           document.body.style.overflow = 'auto';
@@ -124,6 +157,7 @@
           // Destroy OwlCarousel properly
           if (owlCarousel) {
             try {
+              console.log('Destroying OwlCarousel');
               $(carousel).trigger('destroy.owl.carousel');
               carousel.innerHTML = '';
             } catch (e) {
@@ -131,24 +165,53 @@
             }
             owlCarousel = null;
           }
+          
+          currentPhotoIndex = 0;
+          console.log('Carousel closed and reset');
         }
 
-        // Add click handlers to photo tiles
-        document.querySelectorAll('.carousel-trigger').forEach(trigger => {
-          trigger.addEventListener('click', function(e) {
-            e.preventDefault();
-            const photoId = this.dataset.photoId;
-            openCarousel(photoId);
+        // Optimized click handlers
+        function setupCarouselTriggers() {
+          document.querySelectorAll('.carousel-trigger').forEach(trigger => {
+            trigger.removeEventListener('click', handleCarouselClick);
+            trigger.addEventListener('click', handleCarouselClick);
           });
-        });
+        }
 
+        function handleCarouselClick(e) {
+          e.preventDefault();
+          const photoId = this.dataset.photoId;
+          console.log('Carousel trigger clicked for photo:', photoId);
+          openCarousel(photoId);
+        }
+
+        // Re-setup triggers when Turbo content loads
+        document.addEventListener('turbo:load', setupCarouselTriggers);
+        document.addEventListener('turbo:frame-load', setupCarouselTriggers);
+        
         // Close button handler
         closeBtn.addEventListener('click', closeCarousel);
 
-        // Close on ESC key
+        // Keyboard navigation
         document.addEventListener('keydown', function(e) {
-          if (e.key === 'Escape' && isOpen) {
-            closeCarousel();
+          if (!isOpen) return;
+          
+          switch(e.key) {
+            case 'Escape':
+              closeCarousel();
+              break;
+            case 'ArrowLeft':
+              e.preventDefault();
+              if (owlCarousel && currentPhotoIndex > 0) {
+                $(carousel).trigger('prev.owl.carousel');
+              }
+              break;
+            case 'ArrowRight':
+              e.preventDefault();
+              if (owlCarousel && currentPhotoIndex < photos.length - 1) {
+                $(carousel).trigger('next.owl.carousel');
+              }
+              break;
           }
         });
 

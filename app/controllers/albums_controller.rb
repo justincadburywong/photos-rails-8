@@ -9,7 +9,14 @@ class AlbumsController < ApplicationController
     page = params[:page] || 1
     per_page = 24 # Load 24 photos at a time like Wallhaven
     
-    @photos = @album.photos.order(created_at: :desc)
+    # Cache the photo count to avoid repeated COUNT queries
+    @photo_count = Rails.cache.fetch("album_#{@album.id}_photo_count", expires_in: 5.minutes) do
+      @album.photos.count
+    end
+    
+    # Use includes to preload image attachments and avoid N+1 queries
+    @photos = @album.photos.includes(:image_attachment)
+                      .order(created_at: :desc)
                       .offset((page.to_i - 1) * per_page)
                       .limit(per_page)
     
