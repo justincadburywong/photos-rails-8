@@ -1,0 +1,42 @@
+<div class="container mx-auto px-4 py-8 max-w-2xl" data-controller="dropzone" data-dropzone-album-id="<%= @album.id %>" data-dropzone-upload-url="/albums/<%= @album.slug %>/photos/async_upload">
+  <div class="mb-6">
+    <%= link_to '← Back to Album', album_path(@album), class: 'text-gray-600 hover:text-gray-800 font-medium' %>
+  </div>
+  
+  <div class="bg-white rounded-lg shadow-md p-6">
+    <h1 class="text-2xl font-bold text-gray-900 mb-2">Add Photos to <%= @album.name %></h1>
+    <p class="text-gray-600 mb-6">Upload one or more photos to this album</p>
+    
+    <!-- Upload Status Messages -->
+    <div id="upload-status"></div>
+
+    <!-- Async DropZone Upload Area -->
+    <div class="mb-6">
+      <div data-dropzone-target="dropZone" 
+           class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-gray-400 transition-colors cursor-pointer">
+        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+          <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        <div class="mt-4">
+          <p class="text-lg text-gray-600">Drop photos here or click to upload</p>
+          <p class="text-sm text-gray-500">PNG, JPG, GIF up to 10MB each</p>
+        </div>
+        <input data-dropzone-target="fileInput" type="file" multiple accept="image/*" class="hidden">
+        
+        <!-- Progress Bar -->
+        <div class="mt-4 hidden" id="progress-container">
+          <div class="w-full bg-gray-200 rounded-full h-2">
+            <div data-dropzone-target="progress" class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+          </div>
+        </div>
+        
+        <!-- Status Message -->
+        <div data-dropzone-target="status" class="hidden mt-2"></div>
+      </div>
+    </div>
+
+    <div class="flex justify-end space-x-3 pt-4">
+      <%= link_to 'Done', album_path(@album), class: 'px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium' %>
+    </div>
+  </div>
+</div>

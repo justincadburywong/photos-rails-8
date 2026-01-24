@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Outer frame -->
+  <rect x="2" y="2" width="28" height="28" fill="#8B4513" stroke="#654321" stroke-width="1"/>
+  
+  <!-- Inner frame (darker) -->
+  <rect x="4" y="4" width="24" height="24" fill="#654321" stroke="#4A3018" stroke-width="0.5"/>
+  
+  <!-- Picture area (white/light) -->
+  <rect x="6" y="6" width="20" height="20" fill="#F5F5DC"/>
+  
+  <!-- Simple image placeholder -->
+  <rect x="8" y="8" width="16" height="12" fill="#E0E0E0"/>
+  <circle cx="12" cy="14" r="2" fill="#B0B0B0"/>
+  <path d="M8 18 L12 14 L16 16 L20 12 L24 18 L24 20 L8 20 Z" fill="#909090"/>
+  
+  <!-- Frame corners (decorative) -->
+  <rect x="2" y="2" width="4" height="4" fill="#654321"/>
+  <rect x="26" y="2" width="4" height="4" fill="#654321"/>
+  <rect x="2" y="26" width="4" height="4" fill="#654321"/>
+  <rect x="26" y="26" width="4" height="4" fill="#654321"/>
+</svg>

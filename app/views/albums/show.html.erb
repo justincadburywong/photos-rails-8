@@ -1,0 +1,173 @@
+<div class="container mx-auto px-4 py-8" data-controller="album-edit lazy-loading">
+  <%= turbo_stream_from @album %>
+  
+  <div class="flex justify-between items-center mb-6">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white"><%= @album.name %></h1>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1" id="photo-count"><%= @photos.count %> photos</p>
+    </div>
+    <div class="flex space-x-3">
+      <%= link_to 'Back to Albums', albums_path, class: 'bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-colors' %>
+      <button data-action="click->album-edit#toggleEditMode" 
+              data-album-edit-target="editButton"
+              class="bg-orange-600 hover:bg-orange-700 text-white font-medium py-2 px-4 rounded-lg transition-colors">
+        Edit Album
+      </button>
+      <%= link_to 'Add Photo', new_album_photo_path(@album), class: 'bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors' %>
+    </div>
+  </div>
+
+  <!-- Upload Status Messages -->
+  <div id="upload-status"></div>
+
+  <% if @photos.any? %>
+    <!-- OwlCarousel Modal (initially hidden) -->
+    <div id="owl-carousel-modal" class="fixed inset-0 z-50 bg-black hidden" style="display: none;">
+      <div class="relative h-full flex items-center justify-center">
+        <!-- Close button -->
+        <button id="close-carousel" class="absolute top-4 right-4 text-white hover:text-gray-300 z-10 bg-black bg-opacity-50 rounded-full p-2">
+          <span class="text-2xl">&times;</span>
+        </button>
+        
+        <!-- Carousel will be populated here -->
+        <div id="owl-carousel" class="owl-carousel owl-theme"></div>
+      </div>
+    </div>
+
+    <!-- Photo Grid -->
+    <div id="photo-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4" data-lazy-loading-target="grid">
+      <% @photos.each do |photo| %>
+        <% next unless photo %> <!-- Skip nil photos -->
+        <%= render 'photos/photo_item', photo: photo, album: @album %>
+      <% end %>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div data-lazy-loading-target="loading" class="py-8 text-center">
+      <div class="inline-flex items-center space-x-2 hidden" id="loading-spinner">
+        <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+        <span class="text-gray-600 dark:text-gray-400">Loading more photos...</span>
+      </div>
+    </div>
+
+    <!-- Initialize OwlCarousel JavaScript -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('owl-carousel-modal');
+        const carousel = document.getElementById('owl-carousel');
+        const closeBtn = document.getElementById('close-carousel');
+        let owlCarousel = null;
+        let isOpen = false;
+
+        // Get all photos data
+        const photos = [
+          <% @photos.each do |photo| %>
+            <% next unless photo && photo.image.attached? %>
+            {
+              id: <%= photo.id %>,
+              url: "<%= url_for(photo.image) %>"
+            },
+          <% end %>
+        ];
+
+        function openCarousel(clickedPhotoId) {
+          if (isOpen) return; // Prevent multiple opens
+          isOpen = true;
+
+          // Build carousel items
+          const carouselItems = photos.map(photo => `
+            <div class="item">
+              <div class="flex items-center justify-center min-h-screen bg-black">
+                <img src="${photo.url}" alt="Photo" class="max-w-full max-h-full object-contain">
+              </div>
+            </div>
+          `).join('');
+
+          carousel.innerHTML = carouselItems;
+          
+          // Initialize OwlCarousel
+          owlCarousel = $(carousel).owlCarousel({
+            items: 1,
+            loop: false,
+            margin: 0,
+            nav: true,
+            dots: true,
+            autoplay: false,
+            smartSpeed: 300,
+            fluidSpeed: true,
+            navText: [
+              '<span class="text-3xl text-white">&lsaquo;</span>',
+              '<span class="text-3xl text-white">&rsaquo;</span>'
+            ]
+          });
+
+          // Navigate to clicked photo
+          const photoIndex = photos.findIndex(p => p.id == clickedPhotoId);
+          if (photoIndex !== -1) {
+            $(carousel).trigger('to.owl.carousel', [photoIndex, 0, true]);
+          }
+
+          // Show modal
+          modal.style.display = 'block';
+          modal.classList.remove('hidden');
+          document.body.style.overflow = 'hidden';
+        }
+
+        function closeCarousel() {
+          if (!isOpen) return;
+          isOpen = false;
+
+          modal.style.display = 'none';
+          modal.classList.add('hidden');
+          document.body.style.overflow = 'auto';
+          
+          // Destroy OwlCarousel properly
+          if (owlCarousel) {
+            try {
+              $(carousel).trigger('destroy.owl.carousel');
+              carousel.innerHTML = '';
+            } catch (e) {
+              console.log('Carousel destroy error:', e);
+            }
+            owlCarousel = null;
+          }
+        }
+
+        // Add click handlers to photo tiles
+        document.querySelectorAll('.carousel-trigger').forEach(trigger => {
+          trigger.addEventListener('click', function(e) {
+            e.preventDefault();
+            const photoId = this.dataset.photoId;
+            openCarousel(photoId);
+          });
+        });
+
+        // Close button handler
+        closeBtn.addEventListener('click', closeCarousel);
+
+        // Close on ESC key
+        document.addEventListener('keydown', function(e) {
+          if (e.key === 'Escape' && isOpen) {
+            closeCarousel();
+          }
+        });
+
+        // Close on background click
+        modal.addEventListener('click', function(e) {
+          if (e.target === modal && isOpen) {
+            closeCarousel();
+          }
+        });
+      });
+    </script>
+  <% else %>
+    <div class="text-center py-12">
+      <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+      </svg>
+      <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No photos yet</h3>
+      <p class="text-gray-600 dark:text-gray-300 mb-4">Add your first photo to this album.</p>
+      <%= link_to 'Add Photo', new_album_photo_path(@album), class: 'bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors' %>
+    </div>
+  <% end %>
+</div>

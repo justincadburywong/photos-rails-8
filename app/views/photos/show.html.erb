@@ -1,0 +1,69 @@
+<div class="container mx-auto px-4 py-8 max-w-6xl" data-controller="photo-carousel" data-photo-carousel-album-id-value="<%= @album.id %>" data-photo-carousel-photo-id-value="<%= @photo.id %>">
+  <div class="mb-6">
+    <%= link_to '← Back to Album', album_path(@album), class: 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium' %>
+  </div>
+  
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+    <div class="relative">
+      <!-- Previous Button -->
+      <button data-action="click->photo-carousel#previousPhoto" 
+              class="absolute left-4 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-3 rounded-full transition-all duration-200 z-10">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+        </svg>
+      </button>
+      
+      <!-- Next Button -->
+      <button data-action="click->photo-carousel#nextPhoto" 
+              class="absolute right-4 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-3 rounded-full transition-all duration-200 z-10">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+        </svg>
+      </button>
+      
+      <!-- Photo Display -->
+      <div class="aspect-video bg-gray-100 dark:bg-gray-900">
+        <% if @photo.image.attached? %>
+          <%= image_tag @photo.image, 
+              alt: 'Photo', 
+              class: 'w-full h-full object-contain',
+              data: { photo_carousel_target: 'image' } %>
+        <% else %>
+          <div class="w-full h-full flex items-center justify-center text-gray-400">
+            <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+          </div>
+        <% end %>
+      </div>
+      
+      <!-- Photo Counter -->
+      <div class="absolute bottom-4 right-4 bg-black bg-opacity-50 text-white px-3 py-1 rounded-full text-sm">
+        <span data-photo-carousel-target="counter">Loading...</span>
+      </div>
+    </div>
+    
+    <div class="p-6">
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+        Photo
+      </h1>
+      
+      <div class="flex space-x-4">
+        <%= link_to 'Back to Album', album_path(@photo.album), class: 'text-blue-600 hover:text-blue-800 font-medium' %>
+        <%= link_to 'Edit Photo', edit_album_photo_path(@photo.album, @photo), class: 'text-gray-600 hover:text-gray-800 font-medium' %>
+        <%= link_to 'Delete Photo', album_photo_path(@photo.album, @photo), 
+            data: { 
+              turbo_method: :delete,
+              turbo_confirm: 'Are you sure you want to delete this photo?' 
+            }, 
+            class: 'text-red-600 hover:text-red-800 font-medium' %>
+      </div>
+      
+      <!-- Keyboard Navigation Hint -->
+      <div class="mt-4 text-xs text-gray-400 dark:text-gray-500 text-center">
+        <span class="hidden sm:inline">Use ← → arrow keys to navigate</span>
+        <span class="sm:hidden">Swipe left or right to navigate</span>
+      </div>
+    </div>
+  </div>
+</div>
