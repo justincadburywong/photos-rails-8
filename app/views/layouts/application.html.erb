@@ -21,18 +21,16 @@
     <%# Include Tailwind CSS %>
     <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
     
-    <%# OwlCarousel CSS %>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css">
+    <%# GLightbox CSS %>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox@3.2.0/dist/css/glightbox.min.css">
+    
+    <%# GLightbox JavaScript %>
+    <script src="https://cdn.jsdelivr.net/npm/glightbox@3.2.0/dist/js/glightbox.min.js"></script>
     
     <%= javascript_importmap_tags %>
   </head>
 
   <body class="min-h-screen bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100">
   <%= yield %>
-  
-  <%# OwlCarousel JavaScript %>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
 </body>
 </html>

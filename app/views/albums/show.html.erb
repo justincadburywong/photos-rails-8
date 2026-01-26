@@ -21,18 +21,6 @@
   <div id="upload-status"></div>
 
   <% if @photos.any? %>
-    <!-- OwlCarousel Modal (initially hidden) -->
-    <div id="owl-carousel-modal" class="fixed inset-0 z-50 bg-black hidden" style="display: none;">
-      <div class="relative h-full flex items-center justify-center">
-        <!-- Close button -->
-        <button id="close-carousel" class="absolute top-4 right-4 text-white hover:text-gray-300 z-10 bg-black bg-opacity-50 rounded-full p-2">
-          <span class="text-2xl">&times;</span>
-        </button>
-        
-        <!-- Carousel will be populated here -->
-        <div id="owl-carousel" class="owl-carousel owl-theme"></div>
-      </div>
-    </div>
 
     <!-- Photo Grid -->
     <div id="photo-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4" data-lazy-loading-target="grid">
@@ -50,178 +38,121 @@
       </div>
     </div>
 
-    <!-- Initialize Optimized OwlCarousel JavaScript -->
+    <!-- GLightbox JavaScript -->
     <script>
       document.addEventListener('DOMContentLoaded', function() {
-        const modal = document.getElementById('owl-carousel-modal');
-        const carousel = document.getElementById('owl-carousel');
-        const closeBtn = document.getElementById('close-carousel');
-        let owlCarousel = null;
-        let isOpen = false;
-        let currentPhotoIndex = 0;
+        console.log('DOM loaded, checking for GLightbox...');
         
-        // Preload photos data once
-        const photos = [
-          <% @photos.each do |photo| %>
-            <% next unless photo && photo.image.attached? %>
-            {
-              id: <%= photo.id %>,
-              thumbnailUrl: "<%= photo.thumbnail_url %>",
-              mediumUrl: "<%= photo.medium_url %>",
-              largeUrl: "<%= photo.large_url %>"
-            },
-          <% end %>
-        ];
-
-        function openCarousel(clickedPhotoId) {
-          console.log('Opening carousel for photo:', clickedPhotoId);
-          
-          // Find the photo index
-          currentPhotoIndex = photos.findIndex(p => p.id == clickedPhotoId);
-          if (currentPhotoIndex === -1) {
-            console.error('Photo not found:', clickedPhotoId);
-            return;
-          }
-          
-          // If carousel is already open, just navigate
-          if (isOpen && owlCarousel) {
-            $(carousel).trigger('to.owl.carousel', [currentPhotoIndex, 300, true]);
-            return;
-          }
-          
-          isOpen = true;
-          
-          // Build carousel items with lazy loading
-          const carouselItems = photos.map((photo, index) => `
-            <div class="item" data-photo-id="${photo.id}">
-              <div class="flex items-center justify-center min-h-screen bg-black">
-                <img 
-                  src="${index === currentPhotoIndex ? photo.largeUrl : photo.mediumUrl}" 
-                  data-src="${photo.largeUrl}"
-                  alt="Photo" 
-                  class="max-w-full max-h-full object-contain owl-lazy"
-                  loading="${index === currentPhotoIndex ? 'eager' : 'lazy'}">
-              </div>
-            </div>
-          `).join('');
-
-          carousel.innerHTML = carouselItems;
-          
-          // Initialize OwlCarousel with optimized settings
-          owlCarousel = $(carousel).owlCarousel({
-            items: 1,
-            loop: false,
-            margin: 0,
-            nav: true,
-            dots: true,
-            autoplay: false,
-            smartSpeed: 200,
-            fluidSpeed: true,
-            lazyLoad: true,
-            lazyContent: true,
-            navText: [
-              '<span class="text-3xl text-white">&lsaquo;</span>',
-              '<span class="text-3xl text-white">&rsaquo;</span>'
-            ],
-            onInitialized: function() {
-              console.log('Carousel initialized');
-            },
-            onChanged: function(event) {
-              currentPhotoIndex = event.item.index;
-              console.log('Changed to photo index:', currentPhotoIndex);
-            }
-          });
-
-          // Navigate to clicked photo
-          $(carousel).trigger('to.owl.carousel', [currentPhotoIndex, 0, true]);
-
-          // Show modal
-          modal.style.display = 'block';
-          modal.classList.remove('hidden');
-          document.body.style.overflow = 'hidden';
-          
-          console.log('Carousel opened successfully');
+        // Check if GLightbox is available globally
+        if (typeof GLightbox === 'undefined') {
+          console.error('GLightbox is not loaded!');
+          return;
         }
-
-        function closeCarousel() {
-          console.log('Closing carousel');
-          if (!isOpen) return;
-          
-          isOpen = false;
-
-          // Hide modal first
-          modal.style.display = 'none';
-          modal.classList.add('hidden');
-          document.body.style.overflow = 'auto';
-          
-          // Destroy OwlCarousel properly
-          if (owlCarousel) {
-            try {
-              console.log('Destroying OwlCarousel');
-              $(carousel).trigger('destroy.owl.carousel');
-              carousel.innerHTML = '';
-            } catch (e) {
-              console.log('Carousel destroy error:', e);
-            }
-            owlCarousel = null;
-          }
-          
-          currentPhotoIndex = 0;
-          console.log('Carousel closed and reset');
-        }
-
-        // Optimized click handlers
-        function setupCarouselTriggers() {
-          document.querySelectorAll('.carousel-trigger').forEach(trigger => {
-            trigger.removeEventListener('click', handleCarouselClick);
-            trigger.addEventListener('click', handleCarouselClick);
-          });
-        }
-
-        function handleCarouselClick(e) {
-          e.preventDefault();
-          const photoId = this.dataset.photoId;
-          console.log('Carousel trigger clicked for photo:', photoId);
-          openCarousel(photoId);
-        }
-
-        // Re-setup triggers when Turbo content loads
-        document.addEventListener('turbo:load', setupCarouselTriggers);
-        document.addEventListener('turbo:frame-load', setupCarouselTriggers);
         
-        // Close button handler
-        closeBtn.addEventListener('click', closeCarousel);
-
-        // Keyboard navigation
-        document.addEventListener('keydown', function(e) {
-          if (!isOpen) return;
-          
-          switch(e.key) {
-            case 'Escape':
-              closeCarousel();
-              break;
-            case 'ArrowLeft':
-              e.preventDefault();
-              if (owlCarousel && currentPhotoIndex > 0) {
-                $(carousel).trigger('prev.owl.carousel');
-              }
-              break;
-            case 'ArrowRight':
-              e.preventDefault();
-              if (owlCarousel && currentPhotoIndex < photos.length - 1) {
-                $(carousel).trigger('next.owl.carousel');
-              }
-              break;
-          }
-        });
-
-        // Close on background click
-        modal.addEventListener('click', function(e) {
-          if (e.target === modal && isOpen) {
-            closeCarousel();
-          }
-        });
+        console.log('GLightbox found, initializing...');
+        initializeGLightbox();
       });
+      
+      function initializeGLightbox() {
+        let lightbox = null;
+        
+        // Initialize GLightbox
+        function createLightbox() {
+          console.log('Creating GLightbox instance...');
+          const elements = document.querySelectorAll('.glightbox');
+          console.log('Found', elements.length, 'glightbox elements');
+          
+          // Log all found elements for debugging
+          elements.forEach((el, index) => {
+            console.log(`Element ${index + 1}:`, el.href);
+          });
+          
+          try {
+            lightbox = GLightbox({
+              selector: '.glightbox',
+              draggable: true,
+              touchNavigation: true,
+              loop: true,
+              zoomable: true,
+              moreLength: 0,
+              skin: 'clean',
+              openEffect: 'zoom',
+              closeEffect: 'zoom',
+              onOpen: function() {
+                console.log('GLightbox opened');
+              },
+              onClose: function() {
+                console.log('GLightbox closed');
+              }
+            });
+            
+            console.log('GLightbox initialized successfully');
+          } catch (error) {
+            console.error('Error initializing GLightbox:', error);
+          }
+        }
+        
+        // Initial initialization
+        createLightbox();
+        
+        // Re-initialize when new photos are loaded
+        function reinitializeLightbox() {
+          console.log('Re-initializing GLightbox...');
+          
+          // Destroy existing instance
+          if (lightbox) {
+            try {
+              lightbox.destroy();
+              console.log('Previous GLightbox instance destroyed');
+            } catch (error) {
+              console.log('Error destroying GLightbox:', error);
+            }
+          }
+          
+          // Create new instance
+          setTimeout(createLightbox, 50);
+        }
+        
+        // Listen for new photos
+        document.addEventListener('photos:loaded', function(event) {
+          console.log('Photos loaded event received, re-initializing...');
+          setTimeout(reinitializeLightbox, 100);
+        });
+        
+        // Also listen for Turbo navigation
+        document.addEventListener('turbo:load', function() {
+          console.log('Turbo load event, re-initializing...');
+          setTimeout(reinitializeLightbox, 100);
+        });
+        
+        // Set up MutationObserver as backup
+        const observer = new MutationObserver(function(mutations) {
+          let hasNewPhotos = false;
+          mutations.forEach(function(mutation) {
+            if (mutation.type === 'childList') {
+              mutation.addedNodes.forEach(function(node) {
+                if (node.nodeType === 1 && node.classList && node.classList.contains('photo-item')) {
+                  hasNewPhotos = true;
+                }
+              });
+            }
+          });
+          
+          if (hasNewPhotos) {
+            console.log('MutationObserver detected new photos, re-initializing...');
+            setTimeout(reinitializeLightbox, 100);
+          }
+        });
+        
+        // Start observing
+        const photoGrid = document.getElementById('photo-grid');
+        if (photoGrid) {
+          observer.observe(photoGrid, {
+            childList: true,
+            subtree: true
+          });
+        }
+      }
     </script>
   <% else %>
     <div class="text-center py-12">

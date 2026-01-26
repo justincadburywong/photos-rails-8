@@ -1,19 +1,25 @@
 <%# This partial is used for Turbo broadcasting when photos are processed asynchronously %>
 <div class="photo-item group relative" data-photo-id="<%= photo.id %>">
-  <div class="carousel-trigger block aspect-square bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer" 
-       data-photo-id="<%= photo.id %>"
-       data-photo-url="<%= photo.image.attached? ? photo.large_url : '#' %>">
-    <% if photo.image.attached? %>
+  <% if photo.image.attached? %>
+    <%= link_to photo.large_url, 
+        class: 'glightbox block aspect-square bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer', 
+        data: { 
+          gallery: 'album-gallery',
+          photo_id: photo.id
+        } do %>
       <%= image_tag photo.thumbnail_url, 
           alt: 'Photo', 
           class: 'w-full h-full object-cover group-hover:scale-105 transition-transform duration-300',
           loading: 'lazy' %>
-    <% else %>
+    <% end %>
+  <% else %>
+    <div class="glightbox block aspect-square bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer" 
+         data-photo-id="<%= photo.id %>">
       <div class="w-full h-full flex items-center justify-center text-gray-400">
         <span class="text-4xl">📷</span>
       </div>
-    <% end %>
-  </div>
+    </div>
+  <% end %>
   
   <!-- Delete Button (hidden by default) -->
   <div class="delete-button absolute inset-0 z-20 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-200 rounded-lg" 
