@@ -123,6 +123,17 @@ export default class extends Controller {
 
       console.log('Added', newPhotos.length, 'photos to grid')
 
+      // Dispatch custom event to notify Magnific Popup about new photos
+      const event = new CustomEvent('photos:loaded', {
+        detail: {
+          photos: newPhotos,
+          count: newPhotos.length,
+          page: this.pageValue
+        }
+      })
+      document.dispatchEvent(event)
+      console.log('Dispatched photos:loaded event with', newPhotos.length, 'photos')
+
       // Check if there are more pages by looking at the response
       // If we got fewer than 24 photos, we're probably at the end
       if (newPhotos.length < 24) {
