@@ -1,8 +1,10 @@
 class AlbumsController < ApplicationController
+  include PhotoPerformanceHelper
   before_action :set_album, only: [:show, :edit, :update, :destroy]
+  before_action :add_performance_headers, only: [:show]
 
   def index
-    @albums = Album.recent
+    @albums = Album.includes(:photos).recent # Preload photos count
   end
 
   def show
@@ -15,10 +17,13 @@ class AlbumsController < ApplicationController
     end
     
     # Use includes to preload image attachments and avoid N+1 queries
-    @photos = @album.photos.includes(:image_attachment)
+    @photos = @album.photos.includes(:image_attachment, :image_blob)
                       .order(created_at: :desc)
                       .offset((page.to_i - 1) * per_page)
                       .limit(per_page)
+    
+    # Add performance headers
+    response.headers['Cache-Control'] = 'public, max-age=300' # 5 minutes cache
     
     # Check if this is an AJAX request for lazy loading
     if request.xhr?
