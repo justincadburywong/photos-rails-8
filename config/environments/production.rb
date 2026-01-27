@@ -19,7 +19,11 @@ Rails.application.configure do
   config.public_file_server.headers = { "cache-control" => "public, max-age=#{1.year.to_i}" }
 
   # Enable serving of images, stylesheets, and JavaScripts from an asset server.
-  # config.asset_host = "http://assets.example.com"
+  # Uncomment and configure for CDN
+  # config.asset_host = "https://cdn.yourdomain.com"
+  
+  # Add cache headers for Active Storage
+  config.active_storage.routes_prefix = "/rails/active_storage"
 
   # Compress CSS using a preprocessor.
   config.assets.css_compressor = :sass
@@ -47,16 +51,37 @@ Rails.application.configure do
   config.logger   = ActiveSupport::TaggedLogging.logger(STDOUT)
 
   # Change to "debug" to log everything (including potentially personally-identifiable information!).
-  config.log_level = ENV.fetch("RAILS_LOG_LEVEL", "info")
+  config.log_level = ENV.fetch("RAILS_LOG_LEVEL", "warn")
+
+  # === PERFORMANCE OPTIMIZATIONS ===
+  
+  # Enable caching for Active Storage variants
+  config.active_storage.variant_processor = :mini_magick
+  
+  # Increase concurrent workers for better performance
+  config.active_job.queue_adapter = :solid_queue
+  
+  # Optimize middleware stack (removed problematic deletions for now)
+  # config.middleware.delete ActionDispatch::Executor
+  # config.middleware.delete ActionDispatch::Reloader
+  
+  # Cache store configuration
+  config.cache_store = :solid_cache_store
+  
+  # Enable Rails cache for better performance
+  config.action_controller.enable_fragment_cache_logging = true
+  
+  # Optimize session store
+  config.session_store :cookie_store, key: '_photos_session', httponly: true, same_site: :strict
+  
+  # Enable query cache
+  config.active_record.cache_versioning = true
 
   # Prevent health checks from clogging up the logs.
   config.silence_healthcheck_path = "/up"
 
   # Don't log any deprecations.
   config.active_support.report_deprecations = false
-
-  # Replace the default in-process memory cache store with a durable alternative.
-  config.cache_store = :solid_cache_store
 
   # Replace the default in-process and non-durable queuing backend for Active Job.
   config.active_job.queue_adapter = :solid_queue

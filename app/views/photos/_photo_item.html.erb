@@ -10,7 +10,11 @@
       <%= image_tag photo.thumbnail_url, 
           alt: 'Photo', 
           class: 'w-full h-full object-cover group-hover:scale-105 transition-transform duration-300',
-          loading: 'lazy' %>
+          loading: 'lazy',
+          decoding: 'async',
+          fetchpriority: 'auto',
+          sizes: '(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw',
+          srcset: "#{photo.thumbnail_url} 1x, #{photo.medium_url} 2x" %>
     <% end %>
   <% else %>
     <div class="glightbox block aspect-square bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer" 

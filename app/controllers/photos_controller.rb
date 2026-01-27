@@ -88,17 +88,49 @@ class PhotosController < ApplicationController
       end
     end
 
-    # Convert base64 data back to file format for the job
-    processed_files = files_data.map do |file_data|
-      {
-        filename: file_data[:filename],
-        content_type: file_data[:content_type],
-        content: Base64.decode64(file_data[:content])
-      }
+    # Use Active Storage Direct Upload for better performance
+    processed_files = []
+    
+    files_data.each do |file_data|
+      Rails.logger.info "Processing file: #{file_data[:filename]}"
+      Rails.logger.info "Content type: #{file_data[:content_type]}"
+      
+      begin
+        # Decode Base64 content
+        decoded_content = Base64.decode64(file_data[:content])
+        
+        # Create StringIO from decoded content
+        io = StringIO.new(decoded_content)
+        
+        # Upload directly to Active Storage and get the blob key
+        blob = ActiveStorage::Blob.create_and_upload!(
+          io: io,
+          filename: file_data[:filename],
+          content_type: file_data[:content_type],
+          identify: false # Skip identification for speed
+        )
+        
+        # Store only the blob key (JSON-safe)
+        processed_files << {
+          'filename' => file_data[:filename],
+          'content_type' => file_data[:content_type],
+          'blob_key' => blob.key # Just the key, no binary data
+        }
+        
+        Rails.logger.info "Created blob with key: #{blob.key}"
+        
+      rescue => e
+        Rails.logger.error "Error creating blob for #{file_data[:filename]}: #{e.message}"
+        # Add to failed uploads or handle error as needed
+      end
     end
 
     # Enqueue background job
-    PhotoProcessingJob.perform_later(album.id, processed_files)
+    Rails.logger.info "About to enqueue PhotoProcessingJob with #{processed_files.length} files"
+    Rails.logger.info "Processed files data: #{processed_files.inspect}"
+    
+    job = PhotoProcessingJob.perform_later(album.id, processed_files)
+    Rails.logger.info "Enqueued job with ID: #{job.job_id}"
     
     Rails.logger.info "Enqueued PhotoProcessingJob for #{processed_files.length} files"
     

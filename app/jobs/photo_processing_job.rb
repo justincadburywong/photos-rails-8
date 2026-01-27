@@ -2,36 +2,43 @@ class PhotoProcessingJob < ApplicationJob
   queue_as :default
 
   def perform(album_id, files_data)
+    Rails.logger.info "=== PhotoProcessingJob Started ==="
+    Rails.logger.info "Album ID: #{album_id}"
+    Rails.logger.info "Files to process: #{files_data.length}"
+    
     album = Album.find(album_id)
     created_photos = []
     failed_uploads = []
 
-    files_data.each do |file_data|
+    files_data.each_with_index do |file_data, index|
+      Rails.logger.info "Processing file #{index + 1}/#{files_data.length}: #{file_data['filename']}"
+      
       begin
-        # Create a StringIO object from the base64 decoded content
-        io = StringIO.new(file_data[:content])
+        # Find the blob by key (already uploaded)
+        blob = ActiveStorage::Blob.find_by!(key: file_data['blob_key'])
+        Rails.logger.info "Found blob: #{blob.key}, size: #{blob.byte_size}"
         
-        # Create a new ActiveStorage::Blob from the file data
-        blob = ActiveStorage::Blob.create_and_upload!(
-          io: io,
-          filename: file_data[:filename],
-          content_type: file_data[:content_type],
-          identify: true
-        )
-
         # Create the photo with the attached blob
         photo = album.photos.build(image: blob)
+        Rails.logger.info "Built photo: #{photo.inspect}"
         
         if photo.save
           created_photos << photo
+          Rails.logger.info "✅ Photo saved successfully: #{photo.id}"
+          
+          # Pre-generate image variants in background to avoid first-load lag
+          ImageProcessingJob.perform_later(photo.id)
+          
           # Broadcast individual photo as it's processed
           broadcast_photo_update(album, photo)
         else
-          failed_uploads << { filename: file_data[:filename], errors: photo.errors.full_messages }
+          Rails.logger.error "❌ Photo save failed: #{photo.errors.full_messages.join(', ')}"
+          failed_uploads << { filename: file_data['filename'], errors: photo.errors.full_messages }
         end
       rescue => e
-        Rails.logger.error "Error processing photo #{file_data[:filename]}: #{e.message}"
-        failed_uploads << { filename: file_data[:filename], errors: [e.message] }
+        Rails.logger.error "❌ Error processing photo #{file_data['filename']}: #{e.message}"
+        Rails.logger.error e.backtrace.first(5).join("\n")
+        failed_uploads << { filename: file_data['filename'], errors: [e.message] }
       end
     end
 
