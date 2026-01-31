@@ -18,7 +18,7 @@ class AlbumsController < ApplicationController
     
     # Use includes to preload image attachments and avoid N+1 queries
     @photos = @album.photos.includes(:image_attachment, :image_blob)
-                      .order(created_at: :desc)
+                      .order("RANDOM()")
                       .offset((page.to_i - 1) * per_page)
                       .limit(per_page)
     
