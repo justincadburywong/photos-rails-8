@@ -37,14 +37,15 @@ Rails.application.configure do
   # Store uploaded files on the local file system (see config/storage.yml for options).
   config.active_storage.service = :local
 
-  # Assume all access to the app is happening through a SSL-terminating reverse proxy.
-  # config.assume_ssl = true
-
-  # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
-  # config.force_ssl = true
-
-  # Skip http-to-https redirect for the default health check endpoint.
-  # config.ssl_options = { redirect: { exclude: ->(request) { request.path == "/up" } } }
+  # Configure SSL for both local and Cloudflare access
+  config.force_ssl = false  # Disable global SSL forcing to allow HTTP locally
+  
+  # Use HTTP URLs for both local and Cloudflare (Cloudflare handles SSL termination)
+  config.action_controller.default_url_options = { 
+    protocol: 'http',
+    host: '192.168.11.49',
+    port: 4000
+  }
 
   # Log to STDOUT with the current request id as a default log tag.
   config.log_tags = [ :request_id ]
@@ -71,11 +72,29 @@ Rails.application.configure do
   # Enable Rails cache for better performance
   config.action_controller.enable_fragment_cache_logging = true
   
-  # Optimize session store
-  config.session_store :cookie_store, key: '_photos_session', httponly: true, same_site: :strict
+  # Optimize session store for Cloudflare SSL termination (like Epicer)
+ # config.session_store :cookie_store, key: '_photos_session', secure: true, httponly: true, same_site: :strict
   
   # Enable query cache
   config.active_record.cache_versioning = true
+
+  # Allow requests from local origins for development
+  config.hosts.clear
+  config.hosts << "photos.justincadburywong.com"
+  config.hosts << "192.168.11.49"
+  config.hosts << "localhost"
+  config.hosts << "127.0.0.1"
+  config.hosts << "0.0.0.0"
+
+  # Configure Action Cable for local development
+  config.action_cable.allowed_request_origins = [
+    "http://192.168.11.49:4000",
+    "http://192.168.11.49:8080",
+    "http://localhost:4000",
+    "http://localhost:8080",
+    "http://127.0.0.1:4000",
+    "http://127.0.0.1:8080"
+  ]
 
   # Prevent health checks from clogging up the logs.
   config.silence_healthcheck_path = "/up"
@@ -113,11 +132,6 @@ Rails.application.configure do
   # Only use :id for inspections in production.
   config.active_record.attributes_for_inspect = [ :id ]
 
-  # Enable DNS rebinding protection and other `Host` header attacks.
-  # config.hosts = [
-  #   "example.com",     # Allow requests from example.com
-  #   /.*\.example\.com/ # Allow requests from subdomains like `www.example.com`
-  # ]
   #
   # Skip DNS rebinding protection for the default health check endpoint.
   # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
