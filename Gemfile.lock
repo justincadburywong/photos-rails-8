@@ -82,7 +82,7 @@ GEM
     bcrypt_pbkdf (1.1.2)
     bigdecimal (4.0.1)
     bindex (0.8.1)
-    bootsnap (1.21.1)
+    bootsnap (1.22.0)
       msgpack (~> 1.2)
     brakeman (7.1.2)
       racc
@@ -103,9 +103,6 @@ GEM
     connection_pool (3.0.2)
     crass (1.0.6)
     date (3.5.1)
-    debug (1.11.1)
-      irb (~> 1.10)
-      reline (>= 0.3.8)
     dotenv (3.2.0)
     drb (2.2.3)
     ed25519 (1.4.0)
@@ -412,7 +409,6 @@ DEPENDENCIES
   brakeman
   bundler-audit
   capybara
-  debug
   foreman
   friendly_id
   image_processing (~> 1.2)
