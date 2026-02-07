@@ -103,9 +103,6 @@ GEM
     connection_pool (3.0.2)
     crass (1.0.6)
     date (3.5.1)
-    debug (1.11.1)
-      irb (~> 1.10)
-      reline (>= 0.3.8)
     dotenv (3.2.0)
     drb (2.2.3)
     ed25519 (1.4.0)
@@ -365,10 +362,10 @@ GEM
     tailwindcss-ruby (4.1.18-x86_64-linux-gnu)
     tailwindcss-ruby (4.1.18-x86_64-linux-musl)
     thor (1.5.0)
-    thruster (0.1.17)
-    thruster (0.1.17-aarch64-linux)
-    thruster (0.1.17-x86_64-darwin)
-    thruster (0.1.17-x86_64-linux)
+    thruster (0.1.18)
+    thruster (0.1.18-aarch64-linux)
+    thruster (0.1.18-x86_64-darwin)
+    thruster (0.1.18-x86_64-linux)
     timeout (0.6.0)
     tsort (0.2.0)
     turbo-rails (2.0.21)
@@ -412,7 +409,6 @@ DEPENDENCIES
   brakeman
   bundler-audit
   capybara
-  debug
   foreman
   friendly_id
   image_processing (~> 1.2)
