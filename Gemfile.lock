@@ -103,9 +103,6 @@ GEM
     connection_pool (3.0.2)
     crass (1.0.6)
     date (3.5.1)
-    debug (1.11.1)
-      irb (~> 1.10)
-      reline (>= 0.3.8)
     dotenv (3.2.0)
     drb (2.2.3)
     ed25519 (1.4.0)
@@ -117,6 +114,7 @@ GEM
     ffi (1.17.3-aarch64-linux-musl)
     ffi (1.17.3-arm-linux-gnu)
     ffi (1.17.3-arm-linux-musl)
+    ffi (1.17.3-arm64-darwin)
     ffi (1.17.3-x86_64-darwin)
     ffi (1.17.3-x86_64-linux-gnu)
     ffi (1.17.3-x86_64-linux-musl)
@@ -201,6 +199,8 @@ GEM
       racc (~> 1.4)
     nokogiri (1.19.0-arm-linux-musl)
       racc (~> 1.4)
+    nokogiri (1.19.0-arm64-darwin)
+      racc (~> 1.4)
     nokogiri (1.19.0-x86_64-darwin)
       racc (~> 1.4)
     nokogiri (1.19.0-x86_64-linux-gnu)
@@ -218,6 +218,7 @@ GEM
     pg (1.6.3)
     pg (1.6.3-aarch64-linux)
     pg (1.6.3-aarch64-linux-musl)
+    pg (1.6.3-arm64-darwin)
     pg (1.6.3-x86_64-darwin)
     pg (1.6.3-x86_64-linux)
     pg (1.6.3-x86_64-linux-musl)
@@ -361,12 +362,14 @@ GEM
     tailwindcss-ruby (4.1.18)
     tailwindcss-ruby (4.1.18-aarch64-linux-gnu)
     tailwindcss-ruby (4.1.18-aarch64-linux-musl)
+    tailwindcss-ruby (4.1.18-arm64-darwin)
     tailwindcss-ruby (4.1.18-x86_64-darwin)
     tailwindcss-ruby (4.1.18-x86_64-linux-gnu)
     tailwindcss-ruby (4.1.18-x86_64-linux-musl)
     thor (1.5.0)
     thruster (0.1.17)
     thruster (0.1.17-aarch64-linux)
+    thruster (0.1.17-arm64-darwin)
     thruster (0.1.17-x86_64-darwin)
     thruster (0.1.17-x86_64-linux)
     timeout (0.6.0)
@@ -402,6 +405,7 @@ PLATFORMS
   aarch64-linux-musl
   arm-linux-gnu
   arm-linux-musl
+  arm64-darwin-25
   x86_64-darwin-21
   x86_64-linux
   x86_64-linux-gnu
@@ -412,7 +416,6 @@ DEPENDENCIES
   brakeman
   bundler-audit
   capybara
-  debug
   foreman
   friendly_id
   image_processing (~> 1.2)

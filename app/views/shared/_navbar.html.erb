@@ -24,7 +24,9 @@
         </svg>
         <label class="relative inline-flex items-center cursor-pointer">
           <input type="checkbox" data-action="change->dark-mode#toggle" data-dark-mode-target="toggle" class="sr-only peer">
-          <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+          <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 transition-colors duration-200 peer-checked:bg-blue-600 overflow-hidden">
+            <span class="block w-5 h-5 bg-white border border-gray-300 rounded-full shadow-sm transition-transform duration-200 translate-x-0.5 peer-checked:translate-x-[1.375rem] dark:border-gray-600"></span>
+          </div>
         </label>
         <svg class="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
