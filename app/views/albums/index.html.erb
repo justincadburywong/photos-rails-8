@@ -1,18 +1,7 @@
 <div class="container mx-auto px-4 py-8">
   <div class="flex justify-between items-center mb-8">
     <h1 class="text-3xl font-bold text-gray-900 dark:text-white" style="transition: all 0.3s ease;">Photo Albums</h1>
-    <div class="flex items-center space-x-4" data-controller="dark-mode">
-      <!-- Dark Mode Toggle -->
-      <div class="flex items-center space-x-3 bg-gray-100 dark:bg-gray-800 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600" style="transition: all 0.3s ease;">
-        <span class="text-sm text-gray-600 dark:text-gray-300">🌞</span>
-        <div 
-          data-action="click->dark-mode#toggle" 
-          data-dark-mode-target="toggle"
-          class="relative w-12 h-6 bg-gray-400 dark:bg-blue-600 rounded-full cursor-pointer transition-colors duration-200">
-          <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform duration-200 dark:translate-x-6 shadow-sm border border-gray-200"></div>
-        </div>
-        <span class="text-sm text-gray-600 dark:text-gray-300">🌙</span>
-      </div>
+    <div class="flex items-center space-x-4">
       <%= link_to 'New Album', new_album_path, class: 'bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors' %>
     </div>
   </div>
