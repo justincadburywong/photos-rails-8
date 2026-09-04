@@ -22,12 +22,21 @@
       </button>
       
       <!-- Photo Display -->
-      <div class="aspect-video bg-gray-100 dark:bg-gray-900">
+      <div class="relative aspect-video overflow-hidden bg-gray-100 dark:bg-gray-900" style="touch-action: pan-y;">
         <% if @photo.image.attached? %>
           <%= image_tag @photo.image, 
               alt: 'Photo', 
-              class: 'w-full h-full object-contain',
-              data: { photo_carousel_target: 'image' } %>
+              class: 'absolute inset-0 h-full w-full object-contain transform-gpu will-change-transform',
+              loading: 'eager',
+              decoding: 'async',
+              data: { photo_carousel_target: 'currentImage' },
+              style: 'transition: transform 280ms ease, opacity 280ms ease;' %>
+          <img data-photo-carousel-target="incomingImage"
+               alt=""
+               class="absolute inset-0 h-full w-full object-contain transform-gpu will-change-transform pointer-events-none"
+               loading="eager"
+               decoding="async"
+               style="display:none; opacity:0; transition: transform 280ms ease, opacity 280ms ease;">
         <% else %>
           <div class="w-full h-full flex items-center justify-center text-gray-400">
             <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">

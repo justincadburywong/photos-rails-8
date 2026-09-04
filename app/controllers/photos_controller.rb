@@ -11,7 +11,7 @@ class PhotosController < ApplicationController
           { 
             id: photo.id, 
             title: photo.title,
-            image_url: photo.image.attached? ? url_for(photo.image) : nil
+            image_url: photo.large_url
           } 
         end 
       }
